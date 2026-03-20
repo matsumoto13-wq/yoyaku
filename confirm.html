@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>参加確認 | スタッフ募集</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div class="page-wrapper">
+  <header class="site-header">
+    <div class="logo">Staff Recruitment</div>
+    <h1>ご参加確認</h1>
+  </header>
+
+  <div class="card" style="text-align:center;padding:40px 24px;">
+    <div style="font-size:40px;margin-bottom:20px;">🌸</div>
+    <div class="complete-title">お待ちしております</div>
+    <div style="height:16px;"></div>
+    <div class="complete-sub" id="confirmMsg">
+      ご参加のご意思をありがとうございます。<br>
+      当日スタッフ一同お待ちしております。<br><br>
+      当日はお気をつけてお越しください。
+    </div>
+  </div>
+
+  <div class="notice" style="margin-top:16px;">
+    当日、急なご都合でご来店が難しくなった場合は<br>
+    お早めにご連絡いただけますと幸いです。
+  </div>
+</div>
+
+<script>
+const GAS_URL = 'YOUR_GAS_WEB_APP_URL_HERE';
+const params = new URLSearchParams(location.search);
+const bookingId = params.get('id');
+
+if (bookingId) {
+  fetch(`${GAS_URL}?action=confirm&id=${encodeURIComponent(bookingId)}`).catch(() => {});
+}
+</script>
+</body>
+</html>

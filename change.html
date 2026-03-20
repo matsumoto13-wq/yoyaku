@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>予約変更 | スタッフ募集</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div class="page-wrapper">
+  <header class="site-header">
+    <div class="logo">Staff Recruitment</div>
+    <h1>予約の変更</h1>
+  </header>
+
+  <div id="state-loading" style="text-align:center;padding:40px 0;color:var(--text2);">
+    <div class="loading-spinner" style="margin:0 auto 12px;"></div>
+    <div style="font-size:13px;">予約情報を取得中...</div>
+  </div>
+
+  <div id="state-content" style="display:none;">
+    <div class="card">
+      <div class="card-title">現在のご予約</div>
+      <div class="booking-summary" id="currentBooking"></div>
+    </div>
+
+    <div class="notice">
+      下のボタンを押すと現在のご予約はキャンセルされ、<br>
+      新しい日程を選ぶカレンダーへ移動します。
+    </div>
+
+    <button class="btn-primary" id="changeBtn" onclick="doChange()">
+      予約をキャンセルして別日程を選ぶ
+    </button>
+    <div style="height:10px;"></div>
+    <a href="index.html" class="btn-secondary">変更をやめてトップへ</a>
+  </div>
+
+  <div id="state-error" style="display:none;">
+    <div class="card" style="text-align:center;padding:32px;">
+      <div style="font-size:32px;margin-bottom:16px;">⚠</div>
+      <div style="color:var(--text2);font-size:13px;" id="errorMsg">
+        予約情報が見つかりませんでした。
+      </div>
+    </div>
+    <a href="index.html" class="btn-secondary">トップへ戻る</a>
+  </div>
+</div>
+
+<script>
+const GAS_URL = 'YOUR_GAS_WEB_APP_URL_HERE';
+
+const params = new URLSearchParams(location.search);
+const bookingId = params.get('id');
+
+(async function() {
+  if (!bookingId) { showError('URLが正しくありません。'); return; }
+  try {
+    const res = await fetch(`${GAS_URL}?action=getBooking&id=${encodeURIComponent(bookingId)}`);
+    const data = await res.json();
+    if (!data.success) { showError(data.message || '予約情報が見つかりませんでした。'); return; }
+    const b = data.booking;
+    const d = new Date(b.date + 'T00:00:00');
+    const days = ['日','月','火','水','木','金','土'];
+    const rows = [
+      ['日時', `${d.getFullYear()}年${d.getMonth()+1}月${d.getDate()}日（${days[d.getDay()]}） ${b.slot}`],
+      ['お名前', b.name],
+      ['希望店舗', b.store],
+    ];
+    document.getElementById('currentBooking').innerHTML = rows.map(([l,v]) =>
+      `<div class="booking-summary-row"><span class="label">${l}</span><span class="value">${v}</span></div>`
+    ).join('');
+    document.getElementById('state-loading').style.display = 'none';
+    document.getElementById('state-content').style.display = 'block';
+  } catch(e) {
+    // デモ
+    const rows = [
+      ['日時', '2025年5月10日（土） 17:00'],
+      ['お名前', 'さくら'],
+      ['希望店舗', 'クラリス'],
+    ];
+    document.getElementById('currentBooking').innerHTML = rows.map(([l,v]) =>
+      `<div class="booking-summary-row"><span class="label">${l}</span><span class="value">${v}</span></div>`
+    ).join('');
+    document.getElementById('state-loading').style.display = 'none';
+    document.getElementById('state-content').style.display = 'block';
+  }
+})();
+
+async function doChange() {
+  const btn = document.getElementById('changeBtn');
+  btn.disabled = true;
+  btn.textContent = '処理中...';
+  try {
+    const res = await fetch(`${GAS_URL}?action=cancelForChange&id=${encodeURIComponent(bookingId)}`);
+    const data = await res.json();
+    if (data.success || GAS_URL === 'YOUR_GAS_WEB_APP_URL_HERE') {
+      location.href = 'index.html?from=change';
+    } else {
+      alert(data.message || 'エラーが発生しました。');
+      btn.disabled = false;
+      btn.textContent = '予約をキャンセルして別日程を選ぶ';
+    }
+  } catch(e) {
+    location.href = 'index.html?from=change';
+  }
+}
+
+function showError(msg) {
+  document.getElementById('state-loading').style.display = 'none';
+  document.getElementById('errorMsg').textContent = msg;
+  document.getElementById('state-error').style.display = 'block';
+}
+</script>
+</body>
+</html>

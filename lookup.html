@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>予約確認 | スタッフ募集</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div class="page-wrapper">
+  <header class="site-header">
+    <div class="logo">Staff Recruitment</div>
+    <h1>予約確認</h1>
+    <p class="subtitle">メールアドレスで予約内容を確認できます</p>
+  </header>
+
+  <div id="state-form">
+    <div class="card">
+      <div class="card-title">メールアドレスで検索</div>
+      <div class="form-group">
+        <label class="form-label">ご登録のメールアドレス</label>
+        <input type="email" class="form-input" id="lookupEmail"
+          placeholder="例：sakura@example.com" maxlength="100">
+        <div class="error-msg" id="err-lookup">メールアドレスを正しく入力してください</div>
+      </div>
+    </div>
+    <button class="btn-primary" onclick="doLookup()">予約を検索する</button>
+  </div>
+
+  <div id="state-result" style="display:none;">
+    <div class="booking-detail-card">
+      <div class="booking-detail-header">
+        <div style="font-size:11px;color:rgba(232,184,168,0.6);letter-spacing:0.1em;margin-bottom:4px;">予約日時</div>
+        <div class="booking-detail-date" id="resultDate"></div>
+      </div>
+      <div class="booking-detail-body">
+        <div class="booking-detail-row">
+          <span class="label">お名前</span>
+          <span id="resultName"></span>
+        </div>
+        <div class="booking-detail-row">
+          <span class="label">メールアドレス</span>
+          <span id="resultEmail" style="font-size:12px;word-break:break-all;"></span>
+        </div>
+        <div class="booking-detail-row">
+          <span class="label">希望店舗</span>
+          <span id="resultStore"></span>
+        </div>
+        <div class="booking-detail-row">
+          <span class="label">ステータス</span>
+          <span id="resultStatus"></span>
+        </div>
+      </div>
+    </div>
+
+    <div class="notice">
+      予約の変更・キャンセルはリマインドメール内のボタンからお手続きください。
+    </div>
+    <div style="height:8px;"></div>
+    <button class="btn-secondary" onclick="reset()">別のメアドで検索する</button>
+  </div>
+
+  <div id="state-notfound" style="display:none;">
+    <div class="card" style="text-align:center;padding:32px;">
+      <div style="font-size:13px;color:var(--text2);line-height:1.9;">
+        該当する予約が見つかりませんでした。<br>
+        メールアドレスをご確認ください。
+      </div>
+    </div>
+    <div style="height:10px;"></div>
+    <button class="btn-secondary" onclick="reset()">もう一度検索する</button>
+  </div>
+
+</div>
+
+<script>
+const GAS_URL = 'YOUR_GAS_WEB_APP_URL_HERE';
+
+async function doLookup() {
+  const email = document.getElementById('lookupEmail').value.trim();
+  const emailOk = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+  document.getElementById('err-lookup').classList.toggle('visible', !emailOk);
+  document.getElementById('lookupEmail').classList.toggle('error', !emailOk);
+  if (!emailOk) return;
+
+  try {
+    const res = await fetch(`${GAS_URL}?action=lookup&email=${encodeURIComponent(email)}`);
+    const data = await res.json();
+    if (data.success && data.booking) {
+      showResult(data.booking);
+    } else {
+      showNotFound();
+    }
+  } catch(e) {
+    // デモ
+    showResult({
+      date: '2025-05-10',
+      slot: '17:00',
+      name: 'さくら',
+      email: email,
+      store: 'クラリス',
+      status: '確定',
+    });
+  }
+}
+
+function showResult(b) {
+  const d = new Date(b.date + 'T00:00:00');
+  const days = ['日','月','火','水','木','金','土'];
+  document.getElementById('resultDate').textContent =
+    `${d.getFullYear()}年${d.getMonth()+1}月${d.getDate()}日（${days[d.getDay()]}） ${b.slot}`;
+  document.getElementById('resultName').textContent = b.name;
+  document.getElementById('resultEmail').textContent = b.email;
+  document.getElementById('resultStore').textContent = b.store;
+
+  const statusEl = document.getElementById('resultStatus');
+  const statusColors = { '確定': 'var(--success)', '辞退': 'var(--danger)', '変更済み': 'var(--gold)' };
+  statusEl.textContent = b.status || '確定';
+  statusEl.style.color = statusColors[b.status] || 'var(--success)';
+
+  document.getElementById('state-form').style.display = 'none';
+  document.getElementById('state-result').style.display = 'block';
+}
+
+function showNotFound() {
+  document.getElementById('state-form').style.display = 'none';
+  document.getElementById('state-notfound').style.display = 'block';
+}
+
+function reset() {
+  document.getElementById('state-form').style.display = 'block';
+  document.getElementById('state-result').style.display = 'none';
+  document.getElementById('state-notfound').style.display = 'none';
+  document.getElementById('lookupEmail').value = '';
+}
+
+document.getElementById('lookupEmail').addEventListener('keydown', e => {
+  if (e.key === 'Enter') doLookup();
+});
+</script>
+</body>
+</html>

@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>辞退のご連絡 | スタッフ募集</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div class="page-wrapper">
+  <header class="site-header">
+    <div class="logo">Staff Recruitment</div>
+    <h1>辞退のご連絡</h1>
+  </header>
+
+  <div id="state-form">
+    <div class="card">
+      <div class="card-title">辞退の理由</div>
+      <p style="font-size:13px;color:var(--text2);margin-bottom:20px;line-height:1.8;">
+        ご応募いただきありがとうございました。<br>
+        よろしければ辞退の理由をお聞かせください。
+      </p>
+      <div class="radio-group" id="reasonGroup">
+        <label class="radio-item" id="r1">
+          <input type="radio" name="reason" value="他の仕事が決まった" onchange="selectRadio(this)">
+          <span>他の仕事が決まった</span>
+        </label>
+        <label class="radio-item" id="r2">
+          <input type="radio" name="reason" value="予定が合わなくなった" onchange="selectRadio(this)">
+          <span>予定が合わなくなった</span>
+        </label>
+        <label class="radio-item" id="r3">
+          <input type="radio" name="reason" value="気持ちが変わった" onchange="selectRadio(this)">
+          <span>気持ちが変わった</span>
+        </label>
+      </div>
+    </div>
+
+    <button class="btn-danger" id="cancelBtn" onclick="submitCancel()">辞退を送信する</button>
+    <div style="height:10px;"></div>
+    <a href="confirm.html" class="btn-secondary">やっぱり行きます →</a>
+  </div>
+
+  <div id="state-complete" style="display:none;">
+    <div class="card" style="text-align:center;padding:40px 24px;">
+      <div class="complete-icon" style="background:rgba(122,184,154,0.1);border-color:rgba(122,184,154,0.3);">✓</div>
+      <div class="complete-title">ご連絡ありがとうございました</div>
+      <div style="height:16px;"></div>
+      <div class="complete-sub">
+        またの機会にぜひご応募ください。<br>
+        ご縁がありましたらお会いできることを<br>楽しみにしております。
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+const GAS_URL = 'YOUR_GAS_WEB_APP_URL_HERE';
+const params = new URLSearchParams(location.search);
+const bookingId = params.get('id');
+
+function selectRadio(radio) {
+  document.querySelectorAll('.radio-item').forEach(el => el.classList.remove('selected'));
+  radio.closest('.radio-item').classList.add('selected');
+}
+
+async function submitCancel() {
+  const reason = document.querySelector('input[name="reason"]:checked');
+  if (!reason) { alert('理由を選択してください'); return; }
+
+  const btn = document.getElementById('cancelBtn');
+  btn.disabled = true;
+  btn.textContent = '送信中...';
+
+  try {
+    await fetch(`${GAS_URL}?action=cancel&id=${encodeURIComponent(bookingId)}&reason=${encodeURIComponent(reason.value)}`);
+  } catch(e) { /* デモ */ }
+
+  document.getElementById('state-form').style.display = 'none';
+  document.getElementById('state-complete').style.display = 'block';
+}
+</script>
+</body>
+</html>
