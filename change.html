@@ -48,7 +48,7 @@
 </div>
 
 <script>
-const GAS_URL = '1NCti9lzydtkwE0deirTQx0xSFCRpgAd_30lXjHDNQac';
+const GAS_URL = 'https://script.google.com/macros/s/AKfycbyp0dxoe4P12l2gg5cH7IYoBSBSPBcgjsJVKjEa6bW5xaoDadD1GRFqeYhavVp5X_Dp/exec';
 
 const params = new URLSearchParams(location.search);
 const bookingId = params.get('id');
@@ -94,7 +94,7 @@ async function doChange() {
   try {
     const res = await fetch(`${GAS_URL}?action=cancelForChange&id=${encodeURIComponent(bookingId)}`);
     const data = await res.json();
-    if (data.success || GAS_URL === '1NCti9lzydtkwE0deirTQx0xSFCRpgAd_30lXjHDNQac') {
+    if (data.success || GAS_URL === 'https://script.google.com/macros/s/AKfycbyp0dxoe4P12l2gg5cH7IYoBSBSPBcgjsJVKjEa6bW5xaoDadD1GRFqeYhavVp5X_Dp/exec') {
       location.href = 'index.html?from=change';
     } else {
       alert(data.message || 'エラーが発生しました。');
