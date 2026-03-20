@@ -173,7 +173,7 @@
 </div>
 
 <script>
-const GAS_URL = '1NCti9lzydtkwE0deirTQx0xSFCRpgAd_30lXjHDNQac';
+const GAS_URL = 'https://script.google.com/macros/s/AKfycbyp0dxoe4P12l2gg5cH7IYoBSBSPBcgjsJVKjEa6bW5xaoDadD1GRFqeYhavVp5X_Dp/exec';
 const SLOTS = ['16:30','17:00','18:30','19:30','20:30'];
 
 let currentYear, currentMonth;
@@ -419,7 +419,7 @@ async function submitBooking() {
       throw new Error(data.error);
     }
   } catch(e) {
-    if (GAS_URL === '1NCti9lzydtkwE0deirTQx0xSFCRpgAd_30lXjHDNQac') {
+    if (GAS_URL === 'https://script.google.com/macros/s/AKfycbyp0dxoe4P12l2gg5cH7IYoBSBSPBcgjsJVKjEa6bW5xaoDadD1GRFqeYhavVp5X_Dp/exec') {
       showComplete('demo');
     } else {
       alert('通信エラーが発生しました。\n時間をおいて再度お試しください。');
