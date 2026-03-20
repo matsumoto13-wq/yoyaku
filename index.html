@@ -396,10 +396,12 @@ async function submitBooking() {
   };
 
   try {
+    const formData = new URLSearchParams();
+    Object.keys(payload).forEach(k => formData.append(k, payload[k]));
     const res = await fetch(GAS_URL, {
       method: 'POST',
-      headers: {'Content-Type':'application/json'},
-      body: JSON.stringify(payload),
+      headers: {'Content-Type': 'application/x-www-form-urlencoded'},
+      body: formData.toString(),
     });
     const data = await res.json();
     if (data.success) {
