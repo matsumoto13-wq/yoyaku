@@ -403,6 +403,12 @@ async function submitBooking() {
     });
     const data = await res.json();
     if (data.success) {
+      // キャッシュを更新して予約済みスロットを反映
+      if (!availabilityCache[selectedDate]) availabilityCache[selectedDate] = [];
+      if (!availabilityCache[selectedDate].includes(selectedSlot)) {
+        availabilityCache[selectedDate].push(selectedSlot);
+      }
+      renderCalendar();
       showComplete();
     } else if (data.error === 'DUPLICATE_EMAIL') {
       alert('このメールアドレスではすでに予約が入っています。\n予約確認ページよりご確認ください。');
@@ -419,7 +425,7 @@ async function submitBooking() {
       throw new Error(data.error);
     }
   } catch(e) {
-    if (GAS_URL === 'https://script.google.com/macros/s/AKfycbyp0dxoe4P12l2gg5cH7IYoBSBSPBcgjsJVKjEa6bW5xaoDadD1GRFqeYhavVp5X_Dp/exec') {
+    if (GAS_URL === 'YOUR_GAS_WEB_APP_URL_HERE') {
       showComplete('demo');
     } else {
       alert('通信エラーが発生しました。\n時間をおいて再度お試しください。');
