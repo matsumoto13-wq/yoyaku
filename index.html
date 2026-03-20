@@ -182,27 +182,33 @@ let selectedSlot = null;
 let availabilityCache = {};
 let closedDays = [];
 
-let availabilityCachedAt = 0; // キャッシュ取得時刻（ms）
+let availabilityCachedAt = 0;
+let availabilityFetchPromise = null; // 取得中のPromiseを保持
 
 (async function init() {
   const today = new Date();
   currentYear = today.getFullYear();
   currentMonth = today.getMonth();
-  renderCalendar(); // まず即描画
+  renderCalendar(); // 即描画（全日程が選択可能な状態）
   fetchAvailability(); // バックグラウンドで取得開始
 })();
 
-async function fetchAvailability() {
-  try {
-    const res = await fetch(`${GAS_URL}?action=availability`);
-    const data = await res.json();
-    availabilityCache = data.takenSlots || {};
-    closedDays = data.closedDays || [];
-    availabilityCachedAt = Date.now();
-    renderCalendar();
-  } catch(e) {
-    console.warn('デモモードで動作中');
-  }
+function fetchAvailability() {
+  availabilityFetchPromise = (async () => {
+    try {
+      const res = await fetch(`${GAS_URL}?action=availability`);
+      const data = await res.json();
+      availabilityCache = data.takenSlots || {};
+      closedDays = data.closedDays || [];
+      availabilityCachedAt = Date.now();
+      renderCalendar(); // 取得完了したらカレンダーを更新
+    } catch(e) {
+      console.warn('デモモードで動作中');
+    } finally {
+      availabilityFetchPromise = null;
+    }
+  })();
+  return availabilityFetchPromise;
 }
 
 function renderCalendar() {
@@ -290,12 +296,16 @@ async function goToSlots() {
   showSection('slots'); updateSteps(2);
 
   const grid = document.getElementById('slotsGrid');
-  grid.innerHTML = '<div style="grid-column:1/-1;text-align:center;padding:20px 0;font-size:12px;color:var(--text2);">空き確認中...</div>';
   selectedSlot = null;
   document.getElementById('toForm').disabled = true;
 
-  // 5分以上経過していたら再取得
-  if (Date.now() - availabilityCachedAt > 5 * 60 * 1000) {
+  // バックグラウンド取得がまだ終わっていなければ待つ
+  if (availabilityFetchPromise) {
+    grid.innerHTML = '<div style="grid-column:1/-1;text-align:center;padding:20px 0;font-size:12px;color:var(--text2);letter-spacing:0.05em;">空き状況を確認中...</div>';
+    await availabilityFetchPromise;
+  } else if (Date.now() - availabilityCachedAt > 5 * 60 * 1000) {
+    // 5分以上経過していたら再取得
+    grid.innerHTML = '<div style="grid-column:1/-1;text-align:center;padding:20px 0;font-size:12px;color:var(--text2);letter-spacing:0.05em;">空き状況を確認中...</div>';
     await fetchAvailability();
   }
 
