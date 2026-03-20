@@ -182,27 +182,28 @@ let selectedSlot = null;
 let availabilityCache = {};
 let closedDays = [];
 
+let availabilityCachedAt = 0; // キャッシュ取得時刻（ms）
+
 (async function init() {
   const today = new Date();
   currentYear = today.getFullYear();
   currentMonth = today.getMonth();
+  renderCalendar(); // まず即描画
+  fetchAvailability(); // バックグラウンドで取得開始
+})();
 
-  // 取得完了まで「読み込み中」を表示してカレンダーをブロック
-  document.getElementById('calendarGrid').innerHTML =
-    '<div style="grid-column:1/-1;text-align:center;padding:24px 0;font-size:12px;color:var(--text2);letter-spacing:0.05em;">空き状況を確認中...</div>';
-
+async function fetchAvailability() {
   try {
     const res = await fetch(`${GAS_URL}?action=availability`);
     const data = await res.json();
     availabilityCache = data.takenSlots || {};
     closedDays = data.closedDays || [];
+    availabilityCachedAt = Date.now();
+    renderCalendar();
   } catch(e) {
     console.warn('デモモードで動作中');
   }
-
-  // 取得完了後にカレンダーを描画
-  renderCalendar();
-})();
+}
 
 function renderCalendar() {
   const months = ['1月','2月','3月','4月','5月','6月','7月','8月','9月','10月','11月','12月'];
@@ -279,18 +280,26 @@ document.getElementById('nextMonth').addEventListener('click', () => {
 });
 document.getElementById('toSlots').addEventListener('click', goToSlots);
 
-function goToSlots() {
+async function goToSlots() {
   if (!selectedDate) return;
   const d = new Date(selectedDate + 'T00:00:00');
   const days = ['日','月','火','水','木','金','土'];
   document.getElementById('selectedDateLabel').textContent =
     `${d.getFullYear()}年${d.getMonth()+1}月${d.getDate()}日（${days[d.getDay()]}）`;
 
+  showSection('slots'); updateSteps(2);
+
   const grid = document.getElementById('slotsGrid');
-  grid.innerHTML = '';
+  grid.innerHTML = '<div style="grid-column:1/-1;text-align:center;padding:20px 0;font-size:12px;color:var(--text2);">空き確認中...</div>';
   selectedSlot = null;
   document.getElementById('toForm').disabled = true;
 
+  // 5分以上経過していたら再取得
+  if (Date.now() - availabilityCachedAt > 5 * 60 * 1000) {
+    await fetchAvailability();
+  }
+
+  grid.innerHTML = '';
   const taken = availabilityCache[selectedDate] || [];
   const now = new Date();
   SLOTS.forEach(slot => {
@@ -324,7 +333,6 @@ function goToSlots() {
     grid.appendChild(btn);
   });
 
-  showSection('slots'); updateSteps(2);
 }
 
 document.getElementById('toForm').addEventListener('click', () => {
