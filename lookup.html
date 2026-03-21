@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
 <title>予約確認 | スタッフ募集</title>
 <link rel="stylesheet" href="style.css">
+<style>* { font-family: 'Zen Kaku Gothic New', sans-serif !important; }</style>
 </head>
 <body>
 <div class="page-wrapper">
@@ -19,8 +20,7 @@
       <div class="card-title">メールアドレスで検索</div>
       <div class="form-group">
         <label class="form-label">ご登録のメールアドレス</label>
-        <input type="email" class="form-input" id="lookupEmail"
-          placeholder="例：sakura@example.com" maxlength="100">
+        <input type="email" class="form-input" id="lookupEmail" placeholder="例：sakura@example.com">
         <div class="error-msg" id="err-lookup">メールアドレスを正しく入力してください</div>
       </div>
     </div>
@@ -30,51 +30,37 @@
   <div id="state-result" style="display:none;">
     <div class="booking-detail-card">
       <div class="booking-detail-header">
-        <div style="font-size:11px;color:rgba(232,184,168,0.6);letter-spacing:0.1em;margin-bottom:4px;">予約日時</div>
+        <div style="font-size:11px;color:var(--text2);letter-spacing:0.1em;margin-bottom:4px;">予約日時</div>
         <div class="booking-detail-date" id="resultDate"></div>
       </div>
       <div class="booking-detail-body">
-        <div class="booking-detail-row">
-          <span class="label">お名前</span>
-          <span id="resultName"></span>
-        </div>
-        <div class="booking-detail-row">
-          <span class="label">メールアドレス</span>
-          <span id="resultEmail" style="font-size:12px;word-break:break-all;"></span>
-        </div>
-        <div class="booking-detail-row">
-          <span class="label">希望店舗</span>
-          <span id="resultStore"></span>
-        </div>
-        <div class="booking-detail-row">
-          <span class="label">ステータス</span>
-          <span id="resultStatus"></span>
-        </div>
+        <div class="booking-detail-row"><span class="label">お名前</span><span id="resultName"></span></div>
+        <div class="booking-detail-row"><span class="label">メールアドレス</span><span id="resultEmail" style="font-size:12px;word-break:break-all;"></span></div>
+        <div class="booking-detail-row"><span class="label">希望店舗</span><span id="resultStore"></span></div>
+        <div class="booking-detail-row"><span class="label">ステータス</span><span id="resultStatus"></span></div>
       </div>
     </div>
-
-    <div class="notice">
-      予約の変更・キャンセルはリマインドメール内のボタンからお手続きください。
-    </div>
-    <div style="height:8px;"></div>
+    <div class="notice">予約の変更・キャンセルは以下から行えます。</div>
+    <a id="changeLink" href="#" class="btn-secondary" style="margin-bottom:10px;display:block;">↺ 日程を変更する</a>
+    <a id="cancelLink" href="#" class="btn-danger" style="display:block;">× キャンセルする</a>
+    <div style="height:10px;"></div>
     <button class="btn-secondary" onclick="reset()">別のメアドで検索する</button>
   </div>
 
   <div id="state-notfound" style="display:none;">
     <div class="card" style="text-align:center;padding:32px;">
       <div style="font-size:13px;color:var(--text2);line-height:1.9;">
-        該当する予約が見つかりませんでした。<br>
-        メールアドレスをご確認ください。
+        該当する予約が見つかりませんでした。<br>メールアドレスをご確認ください。
       </div>
     </div>
     <div style="height:10px;"></div>
     <button class="btn-secondary" onclick="reset()">もう一度検索する</button>
   </div>
-
 </div>
 
 <script>
-const GAS_URL = 'YOUR_GAS_WEB_APP_URL_HERE';
+const GAS_URL = 'https://script.google.com/macros/s/AKfycbyp0dxoe4P12l2gg5cH7IYoBSBSPBcgjsJVKjEa6bW5xaoDadD1GRFqeYhavVp5X_Dp/exec';
+const FRONT_URL = 'https://matsumoto13-wq.github.io/yoyaku';
 
 async function doLookup() {
   const email = document.getElementById('lookupEmail').value.trim();
@@ -92,15 +78,7 @@ async function doLookup() {
       showNotFound();
     }
   } catch(e) {
-    // デモ
-    showResult({
-      date: '2025-05-10',
-      slot: '17:00',
-      name: 'さくら',
-      email: email,
-      store: 'クラリス',
-      status: '確定',
-    });
+    showNotFound();
   }
 }
 
@@ -112,11 +90,13 @@ function showResult(b) {
   document.getElementById('resultName').textContent = b.name;
   document.getElementById('resultEmail').textContent = b.email;
   document.getElementById('resultStore').textContent = b.store;
-
   const statusEl = document.getElementById('resultStatus');
-  const statusColors = { '確定': 'var(--success)', '辞退': 'var(--danger)', '変更済み': 'var(--gold)' };
   statusEl.textContent = b.status || '確定';
-  statusEl.style.color = statusColors[b.status] || 'var(--success)';
+  statusEl.style.color = b.status === '辞退' ? 'var(--danger)' : 'var(--success)';
+
+  // 変更・キャンセルリンク
+  document.getElementById('changeLink').href = `${FRONT_URL}/change.html?id=${encodeURIComponent(b.id)}`;
+  document.getElementById('cancelLink').href = `${FRONT_URL}/cancel.html?id=${encodeURIComponent(b.id)}`;
 
   document.getElementById('state-form').style.display = 'none';
   document.getElementById('state-result').style.display = 'block';
@@ -126,14 +106,12 @@ function showNotFound() {
   document.getElementById('state-form').style.display = 'none';
   document.getElementById('state-notfound').style.display = 'block';
 }
-
 function reset() {
   document.getElementById('state-form').style.display = 'block';
   document.getElementById('state-result').style.display = 'none';
   document.getElementById('state-notfound').style.display = 'none';
   document.getElementById('lookupEmail').value = '';
 }
-
 document.getElementById('lookupEmail').addEventListener('keydown', e => {
   if (e.key === 'Enter') doLookup();
 });
