@@ -398,8 +398,9 @@ async function submitBooking() {
       renderCalendar();
       showComplete();
     } else if (data.error === 'DUPLICATE_EMAIL') {
-      alert('このメールアドレスではすでに予約が入っています。\n予約確認ページよりご確認ください。');
-      btn.disabled = false;
+      const email = document.getElementById('inputEmail').value.trim();
+      location.href = `lookup.html?email=${encodeURIComponent(email)}`;
+      return;
     } else if (data.error === 'PAST_DEADLINE') {
       alert('この時間枠は受付終了しました。\n別の時間をお選びください。');
       goBack('slots'); btn.disabled = false;
