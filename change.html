@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
 <title>予約変更 | スタッフ募集</title>
 <link rel="stylesheet" href="style.css">
+<style>* { font-family: 'Zen Kaku Gothic New', sans-serif !important; }</style>
 </head>
 <body>
 <div class="page-wrapper">
@@ -23,12 +24,10 @@
       <div class="card-title">現在のご予約</div>
       <div class="booking-summary" id="currentBooking"></div>
     </div>
-
     <div class="notice">
       下のボタンを押すと現在のご予約はキャンセルされ、<br>
       新しい日程を選ぶカレンダーへ移動します。
     </div>
-
     <button class="btn-primary" id="changeBtn" onclick="doChange()">
       予約をキャンセルして別日程を選ぶ
     </button>
@@ -38,18 +37,14 @@
 
   <div id="state-error" style="display:none;">
     <div class="card" style="text-align:center;padding:32px;">
-      <div style="font-size:32px;margin-bottom:16px;">⚠</div>
-      <div style="color:var(--text2);font-size:13px;" id="errorMsg">
-        予約情報が見つかりませんでした。
-      </div>
+      <div style="font-size:13px;color:var(--text2);" id="errorMsg">予約情報が見つかりませんでした。</div>
     </div>
-    <a href="index.html" class="btn-secondary">トップへ戻る</a>
+    <a href="index.html" class="btn-secondary" style="margin-top:12px;display:block;">トップへ戻る</a>
   </div>
 </div>
 
 <script>
 const GAS_URL = 'https://script.google.com/macros/s/AKfycbyp0dxoe4P12l2gg5cH7IYoBSBSPBcgjsJVKjEa6bW5xaoDadD1GRFqeYhavVp5X_Dp/exec';
-
 const params = new URLSearchParams(location.search);
 const bookingId = params.get('id');
 
@@ -60,12 +55,27 @@ const bookingId = params.get('id');
     const data = await res.json();
     if (!data.success) { showError(data.message || '予約情報が見つかりませんでした。'); return; }
     const b = data.booking;
-    const d = new Date(b.date + 'T00:00:00');
+
+    // 日付をパース（文字列 "2026-03-22" 形式）
+    const dateStr = typeof b.date === 'string' ? b.date : '';
+    const d = dateStr ? new Date(dateStr + 'T00:00:00') : null;
     const days = ['日','月','火','水','木','金','土'];
+    const dateLabel = d && !isNaN(d)
+      ? `${d.getFullYear()}年${d.getMonth()+1}月${d.getDate()}日（${days[d.getDay()]}）`
+      : dateStr;
+
+    // スロットの型変換（時刻型の場合も対応）
+    let slot = b.slot || '';
+    if (slot && slot.includes('T')) {
+      // ISO形式の場合はHH:mmだけ取り出す
+      const m = slot.match(/T(\d{2}:\d{2})/);
+      if (m) slot = m[1];
+    }
+
     const rows = [
-      ['日時', `${d.getFullYear()}年${d.getMonth()+1}月${d.getDate()}日（${days[d.getDay()]}） ${b.slot}`],
+      ['日時', `${dateLabel} ${slot}`],
       ['お名前', b.name],
-      ['希望店舗', b.store],
+      ['希望店舗', b.store || '未選択'],
     ];
     document.getElementById('currentBooking').innerHTML = rows.map(([l,v]) =>
       `<div class="booking-summary-row"><span class="label">${l}</span><span class="value">${v}</span></div>`
@@ -73,37 +83,17 @@ const bookingId = params.get('id');
     document.getElementById('state-loading').style.display = 'none';
     document.getElementById('state-content').style.display = 'block';
   } catch(e) {
-    // デモ
-    const rows = [
-      ['日時', '2025年5月10日（土） 17:00'],
-      ['お名前', 'さくら'],
-      ['希望店舗', 'クラリス'],
-    ];
-    document.getElementById('currentBooking').innerHTML = rows.map(([l,v]) =>
-      `<div class="booking-summary-row"><span class="label">${l}</span><span class="value">${v}</span></div>`
-    ).join('');
-    document.getElementById('state-loading').style.display = 'none';
-    document.getElementById('state-content').style.display = 'block';
+    showError('通信エラーが発生しました。');
   }
 })();
 
 async function doChange() {
   const btn = document.getElementById('changeBtn');
-  btn.disabled = true;
-  btn.textContent = '処理中...';
+  btn.disabled = true; btn.textContent = '処理中...';
   try {
-    const res = await fetch(`${GAS_URL}?action=cancelForChange&id=${encodeURIComponent(bookingId)}`);
-    const data = await res.json();
-    if (data.success || GAS_URL === 'https://script.google.com/macros/s/AKfycbyp0dxoe4P12l2gg5cH7IYoBSBSPBcgjsJVKjEa6bW5xaoDadD1GRFqeYhavVp5X_Dp/exec') {
-      location.href = 'index.html?from=change';
-    } else {
-      alert(data.message || 'エラーが発生しました。');
-      btn.disabled = false;
-      btn.textContent = '予約をキャンセルして別日程を選ぶ';
-    }
-  } catch(e) {
-    location.href = 'index.html?from=change';
-  }
+    await fetch(`${GAS_URL}?action=cancelForChange&id=${encodeURIComponent(bookingId)}`);
+  } catch(e) {}
+  location.href = 'index.html';
 }
 
 function showError(msg) {
