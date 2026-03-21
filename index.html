@@ -6,44 +6,32 @@
 <title>面接予約 | スタッフ募集</title>
 <link rel="stylesheet" href="style.css">
 <style>
+* { font-family: 'Zen Kaku Gothic New', sans-serif !important; }
 .modal-overlay {
-  position: fixed;
-  inset: 0;
+  position: fixed; inset: 0;
   background: rgba(26,42,56,0.55);
-  z-index: 200;
-  display: flex;
-  align-items: flex-end;
-  justify-content: center;
-  opacity: 0;
-  pointer-events: none;
+  z-index: 200; display: flex;
+  align-items: flex-end; justify-content: center;
+  opacity: 0; pointer-events: none;
   transition: opacity 0.3s ease;
 }
-.modal-overlay.active {
-  opacity: 1;
-  pointer-events: all;
-}
+.modal-overlay.active { opacity: 1; pointer-events: all; }
 .modal-sheet {
   background: var(--bg3);
   border-radius: var(--radius-lg) var(--radius-lg) 0 0;
-  width: 100%;
-  max-width: 480px;
-  max-height: 92vh;
-  overflow-y: auto;
-  padding: 20px 20px 40px;
+  width: 100%; max-width: 480px; max-height: 92vh;
+  overflow-y: auto; padding: 20px 20px 40px;
   transform: translateY(100%);
   transition: transform 0.35s cubic-bezier(0.32,0.72,0,1);
   box-shadow: 0 -4px 32px rgba(26,42,56,0.15);
 }
-.modal-overlay.active .modal-sheet {
-  transform: translateY(0);
-}
+.modal-overlay.active .modal-sheet { transform: translateY(0); }
 .modal-handle {
-  width: 40px;
-  height: 4px;
-  background: var(--border3);
-  border-radius: 2px;
+  width: 40px; height: 4px;
+  background: var(--border3); border-radius: 2px;
   margin: 0 auto 20px;
 }
+.site-header .subtitle { display: none; }
 </style>
 </head>
 <body>
@@ -53,7 +41,6 @@
   <div class="loading-text">送信中...</div>
 </div>
 
-<!-- プロフィール入力モーダル -->
 <div class="modal-overlay active" id="profileModal">
   <div class="modal-sheet">
     <div class="modal-handle"></div>
@@ -61,19 +48,16 @@
     <p style="font-size:12px;color:var(--text2);margin-bottom:20px;line-height:1.8;">
       日程を選ぶ前に、簡単なプロフィールをご入力ください。
     </p>
-
     <div class="form-group">
       <label class="form-label">お名前（ニックネーム可）<span class="required">*</span></label>
       <input type="text" class="form-input" id="inputName" placeholder="例：さくら" maxlength="50">
       <div class="error-msg" id="err-name">お名前を入力してください</div>
     </div>
-
     <div class="form-group">
       <label class="form-label">メールアドレス<span class="required">*</span></label>
       <input type="email" class="form-input" id="inputEmail" placeholder="例：sakura@example.com" maxlength="100">
       <div class="error-msg" id="err-email">正しいメールアドレスを入力してください</div>
     </div>
-
     <div class="form-group">
       <label class="form-label">希望店舗<span class="required">*</span></label>
       <select class="form-select" id="inputStore">
@@ -85,36 +69,29 @@
       </select>
       <div class="error-msg" id="err-store">希望店舗を選択してください</div>
     </div>
-
     <div class="form-group">
       <label class="form-label">このお店を知ったきっかけ<span class="required">*</span></label>
       <div class="checkbox-group" id="mediaGroup">
         <label class="checkbox-item" id="chk-instagram">
-          <input type="checkbox" value="Instagram" onchange="handleCheckChange(this)">
-          <span>Instagram</span>
+          <input type="checkbox" value="Instagram" onchange="handleCheckChange(this)"><span>Instagram</span>
         </label>
         <label class="checkbox-item" id="chk-tiktok">
-          <input type="checkbox" value="TikTok" onchange="handleCheckChange(this)">
-          <span>TikTok</span>
+          <input type="checkbox" value="TikTok" onchange="handleCheckChange(this)"><span>TikTok</span>
         </label>
         <label class="checkbox-item" id="chk-twitter">
-          <input type="checkbox" value="Twitter/X" onchange="handleCheckChange(this)">
-          <span>Twitter / X</span>
+          <input type="checkbox" value="Twitter/X" onchange="handleCheckChange(this)"><span>Twitter / X</span>
         </label>
         <label class="checkbox-item" id="chk-caferun">
-          <input type="checkbox" value="カフェるん" onchange="handleCheckChange(this)">
-          <span>カフェるん</span>
+          <input type="checkbox" value="カフェるん" onchange="handleCheckChange(this)"><span>カフェるん</span>
         </label>
         <label class="checkbox-item checkbox-other" id="chk-other">
-          <input type="checkbox" value="その他" onchange="handleCheckChange(this)">
-          <span>その他</span>
+          <input type="checkbox" value="その他" onchange="handleCheckChange(this)"><span>その他</span>
         </label>
       </div>
       <input type="text" class="form-input" id="inputMediaOther"
         placeholder="その他の場合はこちらに入力" style="margin-top:8px;display:none;" maxlength="100">
       <div class="error-msg" id="err-media">きっかけを選択してください</div>
     </div>
-
     <button class="btn-primary" onclick="closeProfileModal()">日程を選ぶ →</button>
   </div>
 </div>
@@ -128,18 +105,15 @@
 
   <div class="step-indicator" id="stepIndicator">
     <div class="step active">
-      <div class="step-dot">1</div>
-      <div class="step-label">日付</div>
+      <div class="step-dot">1</div><div class="step-label">日付</div>
     </div>
     <div class="step-line"></div>
     <div class="step">
-      <div class="step-dot">2</div>
-      <div class="step-label">時間</div>
+      <div class="step-dot">2</div><div class="step-label">時間</div>
     </div>
     <div class="step-line"></div>
     <div class="step">
-      <div class="step-dot">3</div>
-      <div class="step-label">確認</div>
+      <div class="step-dot">3</div><div class="step-label">確認</div>
     </div>
   </div>
 
@@ -162,18 +136,17 @@
 
   <!-- Section 2: Slots -->
   <div class="section" id="section-slots">
+    <button class="btn-secondary" onclick="goBack('calendar')" style="margin-bottom:12px;">← 日付を選び直す</button>
     <div class="card">
       <div class="card-title">時間を選択</div>
-      <div id="selectedDateLabel" style="font-family:'Shippori Mincho',serif;font-size:16px;color:var(--text2);margin-bottom:16px;"></div>
+      <div id="selectedDateLabel" style="font-size:15px;color:var(--text2);margin-bottom:16px;"></div>
       <div class="slots-grid" id="slotsGrid"></div>
     </div>
-    <button class="btn-primary" id="toConfirmBtn" disabled>次へ ― 内容を確認</button>
-    <div style="height:10px;"></div>
-    <button class="btn-secondary" onclick="goBack('calendar')">← 日付を選び直す</button>
   </div>
 
   <!-- Section 3: Confirm -->
   <div class="section" id="section-confirm">
+    <button class="btn-secondary" onclick="goBack('slots')" style="margin-bottom:12px;">← 時間を選び直す</button>
     <div class="card">
       <div class="card-title">予約内容の確認</div>
       <div class="booking-summary" id="confirmSummary"></div>
@@ -188,8 +161,6 @@
       </span>
     </div>
     <button class="btn-primary" id="submitBtn" onclick="submitBooking()">予約を確定する</button>
-    <div style="height:10px;"></div>
-    <button class="btn-secondary" onclick="goBack('slots')">← 時間を選び直す</button>
   </div>
 
   <!-- Section 4: Complete -->
@@ -205,11 +176,7 @@
         それでも届かない場合はお手数ですが店舗までお問い合わせください。
       </div>
     </div>
-    <div class="deco-line"><span>予約確認</span></div>
-    <p style="font-size:12px;color:var(--text2);text-align:center;margin-bottom:12px;">
-      予約内容を後から確認したい場合
-    </p>
-    <a href="lookup.html" class="btn-secondary">予約確認ページへ</a>
+    <a href="lookup.html" class="btn-secondary" style="margin-top:16px;">予約確認ページへ</a>
   </div>
 
 </div>
@@ -226,7 +193,6 @@ let closedDays = [];
 let availabilityCachedAt = 0;
 let availabilityFetchPromise = null;
 
-// ページ読み込み直後にGAS取得開始
 (function init() {
   const today = new Date();
   currentYear = today.getFullYear();
@@ -244,26 +210,20 @@ function fetchAvailability() {
       closedDays = data.closedDays || [];
       availabilityCachedAt = Date.now();
       renderCalendar();
-    } catch(e) {
-      console.warn('デモモードで動作中');
-    } finally {
-      availabilityFetchPromise = null;
-    }
+    } catch(e) { console.warn('デモモード'); }
+    finally { availabilityFetchPromise = null; }
   })();
   return availabilityFetchPromise;
 }
 
-// プロフィールモーダル
 function closeProfileModal() {
   if (!validateForm()) return;
   document.getElementById('profileModal').classList.remove('active');
 }
-
 function openProfileModal() {
   document.getElementById('profileModal').classList.add('active');
 }
 
-// カレンダー描画
 function renderCalendar() {
   const months = ['1月','2月','3月','4月','5月','6月','7月','8月','9月','10月','11月','12月'];
   document.getElementById('calendarMonth').textContent = `${currentYear}年 ${months[currentMonth]}`;
@@ -275,24 +235,17 @@ function renderCalendar() {
   const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
 
   for (let i = 0; i < firstDay; i++) {
-    const e = document.createElement('div');
-    e.className = 'calendar-day empty';
-    grid.appendChild(e);
+    const e = document.createElement('div'); e.className = 'calendar-day empty'; grid.appendChild(e);
   }
-
   for (let d = 1; d <= daysInMonth; d++) {
     const date = new Date(currentYear, currentMonth, d);
-    const dateStr = fmt(date);
-    const dow = date.getDay();
+    const dateStr = fmt(date); const dow = date.getDay();
     const el = document.createElement('div');
-    el.textContent = d;
-    el.className = 'calendar-day';
+    el.textContent = d; el.className = 'calendar-day';
     if (dow === 0) el.classList.add('sun');
     if (dow === 6) el.classList.add('sat');
     if (date.getTime() === today.getTime()) el.classList.add('today');
-
-    const isPast = date < today;
-    const isFuture = date > maxDate;
+    const isPast = date < today, isFuture = date > maxDate;
     const isClosed = closedDays.includes(dateStr);
     const taken = availabilityCache[dateStr] || [];
     const now = new Date();
@@ -300,12 +253,9 @@ function renderCalendar() {
       if (taken.includes(slot)) return false;
       const [h, m] = slot.split(':').map(Number);
       const slotTime = new Date(currentYear, currentMonth, d, h, m, 0);
-      const deadline = new Date(slotTime.getTime() - 6 * 60 * 60 * 1000);
-      return now < deadline;
+      return now < new Date(slotTime.getTime() - 6*60*60*1000);
     });
-    // 取得完了後のみ満席判定
     const allTaken = availabilityCachedAt > 0 && availableSlots.length === 0;
-
     if (isPast || isFuture || allTaken) {
       el.classList.add('disabled');
     } else if (isClosed) {
@@ -338,32 +288,27 @@ document.getElementById('nextMonth').addEventListener('click', () => {
 });
 document.getElementById('toSlots').addEventListener('click', goToSlots);
 
-// スロット表示
 async function goToSlots() {
   if (!selectedDate) return;
   const d = new Date(selectedDate + 'T00:00:00');
   const days = ['日','月','火','水','木','金','土'];
   document.getElementById('selectedDateLabel').textContent =
     `${d.getFullYear()}年${d.getMonth()+1}月${d.getDate()}日（${days[d.getDay()]}）`;
-
   showSection('slots'); updateSteps(2);
-
   const grid = document.getElementById('slotsGrid');
   selectedSlot = null;
-  document.getElementById('toConfirmBtn').disabled = true;
 
   if (availabilityFetchPromise) {
-    grid.innerHTML = '<div style="grid-column:1/-1;text-align:center;padding:20px 0;font-size:12px;color:var(--text2);letter-spacing:0.05em;">空き状況を確認中...</div>';
+    grid.innerHTML = '<div style="grid-column:1/-1;text-align:center;padding:20px 0;font-size:12px;color:var(--text2);">空き状況を確認中...</div>';
     await availabilityFetchPromise;
-  } else if (Date.now() - availabilityCachedAt > 5 * 60 * 1000) {
-    grid.innerHTML = '<div style="grid-column:1/-1;text-align:center;padding:20px 0;font-size:12px;color:var(--text2);letter-spacing:0.05em;">空き状況を確認中...</div>';
+  } else if (Date.now() - availabilityCachedAt > 5*60*1000) {
+    grid.innerHTML = '<div style="grid-column:1/-1;text-align:center;padding:20px 0;font-size:12px;color:var(--text2);">空き状況を確認中...</div>';
     await fetchAvailability();
   }
 
   grid.innerHTML = '';
   const taken = availabilityCache[selectedDate] || [];
   const now = new Date();
-
   SLOTS.forEach(slot => {
     const btn = document.createElement('div');
     btn.className = 'slot-btn';
@@ -371,8 +316,7 @@ async function goToSlots() {
     const [h, m] = slot.split(':').map(Number);
     const slotTime = new Date(selectedDate + 'T00:00:00');
     slotTime.setHours(h, m, 0, 0);
-    const deadline = new Date(slotTime.getTime() - 6 * 60 * 60 * 1000);
-    const isPastDeadline = now >= deadline;
+    const isPastDeadline = now >= new Date(slotTime.getTime() - 6*60*60*1000);
     const label = isTaken ? '予約済み' : isPastDeadline ? '受付終了' : '空き';
     btn.innerHTML = `<div>${slot}</div><div class="slot-status">${label}</div>`;
     if (isTaken || isPastDeadline) {
@@ -380,24 +324,13 @@ async function goToSlots() {
     } else {
       btn.addEventListener('click', () => {
         selectedSlot = slot;
-        document.querySelectorAll('.slot-btn.selected').forEach(e => {
-          e.classList.remove('selected');
-          e.querySelector('.slot-status').textContent = '空き';
-        });
-        btn.classList.add('selected');
-        btn.querySelector('.slot-status').textContent = '選択中';
-        document.getElementById('toConfirmBtn').disabled = false;
+        buildConfirmSummary();
+        showSection('confirm'); updateSteps(3);
       });
     }
     grid.appendChild(btn);
   });
 }
-
-document.getElementById('toConfirmBtn').addEventListener('click', () => {
-  if (!selectedSlot) return;
-  buildConfirmSummary();
-  showSection('confirm'); updateSteps(3);
-});
 
 function buildConfirmSummary() {
   const d = new Date(selectedDate + 'T00:00:00');
@@ -410,7 +343,7 @@ function buildConfirmSummary() {
     ['希望店舗', document.getElementById('inputStore').value],
     ['参考媒体', getMedia()],
   ];
-  document.getElementById('confirmSummary').innerHTML = rows.map(([l, v]) =>
+  document.getElementById('confirmSummary').innerHTML = rows.map(([l,v]) =>
     `<div class="booking-summary-row"><span class="label">${l}</span><span class="value">${v}</span></div>`
   ).join('');
 }
@@ -428,24 +361,19 @@ function validateForm() {
   setErr('media', !anyMedia); if (!anyMedia) ok = false;
   return ok;
 }
-
 function setErr(field, show) {
   document.getElementById(`err-${field}`).classList.toggle('visible', show);
-  const input = document.getElementById(`input${field[0].toUpperCase() + field.slice(1)}`);
+  const input = document.getElementById(`input${field[0].toUpperCase()+field.slice(1)}`);
   if (input) input.classList.toggle('error', show);
 }
-
 function handleCheckChange(cb) {
   cb.closest('.checkbox-item').classList.toggle('checked', cb.checked);
   document.getElementById('inputMediaOther').style.display =
     document.querySelector('input[value="その他"]:checked') ? 'block' : 'none';
 }
-
 function getMedia() {
   return [...document.querySelectorAll('#mediaGroup input:checked')].map(cb =>
-    cb.value === 'その他'
-      ? `その他：${document.getElementById('inputMediaOther').value || ''}`
-      : cb.value
+    cb.value === 'その他' ? `その他：${document.getElementById('inputMediaOther').value||''}` : cb.value
   ).join('、');
 }
 
@@ -453,17 +381,13 @@ async function submitBooking() {
   const btn = document.getElementById('submitBtn');
   btn.disabled = true;
   document.getElementById('loading').classList.add('active');
-
   const payload = {
-    action: 'book',
-    date: selectedDate,
-    slot: selectedSlot,
+    action: 'book', date: selectedDate, slot: selectedSlot,
     name: document.getElementById('inputName').value.trim(),
     email: document.getElementById('inputEmail').value.trim(),
     store: document.getElementById('inputStore').value,
     media: getMedia(),
   };
-
   try {
     const res = await fetch(GAS_URL, {
       method: 'POST',
@@ -473,9 +397,7 @@ async function submitBooking() {
     const data = await res.json();
     if (data.success) {
       if (!availabilityCache[selectedDate]) availabilityCache[selectedDate] = [];
-      if (!availabilityCache[selectedDate].includes(selectedSlot)) {
-        availabilityCache[selectedDate].push(selectedSlot);
-      }
+      if (!availabilityCache[selectedDate].includes(selectedSlot)) availabilityCache[selectedDate].push(selectedSlot);
       renderCalendar();
       showComplete();
     } else if (data.error === 'DUPLICATE_EMAIL') {
@@ -483,57 +405,45 @@ async function submitBooking() {
       btn.disabled = false;
     } else if (data.error === 'PAST_DEADLINE') {
       alert('この時間枠は受付終了しました。\n別の時間をお選びください。');
-      goBack('slots');
-      btn.disabled = false;
+      goBack('slots'); btn.disabled = false;
     } else if (data.error === 'SLOT_TAKEN') {
       alert('この時間はすでに予約が入ってしまいました。\n別の時間をお選びください。');
-      goBack('slots');
-      btn.disabled = false;
-    } else {
-      throw new Error(data.error);
-    }
+      goBack('slots'); btn.disabled = false;
+    } else { throw new Error(data.error); }
   } catch(e) {
-    if (GAS_URL === 'YOUR_GAS_WEB_APP_URL_HERE') {
-      showComplete('demo');
-    } else {
-      alert('通信エラーが発生しました。\n時間をおいて再度お試しください。');
-      btn.disabled = false;
-    }
+    alert('通信エラーが発生しました。\n時間をおいて再度お試しください。');
+    btn.disabled = false;
   } finally {
     document.getElementById('loading').classList.remove('active');
   }
 }
 
-function showComplete(mode) {
+function showComplete() {
   const d = new Date(selectedDate + 'T00:00:00');
   const days = ['日','月','火','水','木','金','土'];
-  const suffix = mode === 'demo' ? '<br><br>（デモモード：実際には送信されていません）' : '';
   document.getElementById('completeMessage').innerHTML =
-    `${d.getFullYear()}年${d.getMonth()+1}月${d.getDate()}日（${days[d.getDay()]}）<br>${selectedSlot} にご予約を承りました。<br><br>確認メールをお送りしましたのでご確認ください。${suffix}`;
+    `${d.getFullYear()}年${d.getMonth()+1}月${d.getDate()}日（${days[d.getDay()]}）<br>${selectedSlot} にご予約を承りました。<br><br>確認メールをお送りしましたのでご確認ください。`;
   showSection('complete'); updateSteps(4);
 }
 
 function goBack(to) {
-  const map = { calendar: 1, slots: 2, confirm: 3 };
+  const map = {calendar:1, slots:2, confirm:3};
   showSection(to); updateSteps(map[to]);
 }
-
 function showSection(name) {
   document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
   document.getElementById(`section-${name}`).classList.add('active');
-  window.scrollTo({ top: 0, behavior: 'smooth' });
+  window.scrollTo({top:0, behavior:'smooth'});
 }
-
 function updateSteps(active) {
-  document.querySelectorAll('.step').forEach((s, i) => {
-    s.classList.remove('active', 'done');
-    const n = i + 1;
+  document.querySelectorAll('.step').forEach((s,i) => {
+    s.classList.remove('active','done');
+    const n = i+1;
     if (n < active) s.classList.add('done');
     else if (n === active) s.classList.add('active');
   });
   document.getElementById('stepIndicator').style.display = active >= 4 ? 'none' : 'flex';
 }
-
 function fmt(date) {
   return `${date.getFullYear()}-${String(date.getMonth()+1).padStart(2,'0')}-${String(date.getDate()).padStart(2,'0')}`;
 }
