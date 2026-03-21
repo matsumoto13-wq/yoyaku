@@ -59,18 +59,18 @@
       <div class="error-msg" id="err-email">正しいメールアドレスを入力してください</div>
     </div>
     <div class="form-group">
-      <label class="form-label">希望店舗<span class="required">*</span></label>
+      <label class="form-label">希望店舗</label>
       <select class="form-select" id="inputStore">
-        <option value="">選択してください</option>
-        <option value="クラリス">クラリス</option>
-        <option value="リディア">リディア</option>
-        <option value="ルル">ルル</option>
+        <option value="">選択してください（任意）</option>
+        <option value="クラリスベール">クラリスベール（紺色シスター）</option>
+        <option value="ルルベール">ルルベール（水色シスター）</option>
+        <option value="リディアベール">リディアベール（猫耳シスター）</option>
         <option value="どこでも可">どこでも可</option>
       </select>
       <div class="error-msg" id="err-store">希望店舗を選択してください</div>
     </div>
     <div class="form-group">
-      <label class="form-label">このお店を知ったきっかけ<span class="required">*</span></label>
+      <label class="form-label">このお店を知ったきっかけ（任意）</label>
       <div class="checkbox-group" id="mediaGroup">
         <label class="checkbox-item" id="chk-instagram">
           <input type="checkbox" value="Instagram" onchange="handleCheckChange(this)"><span>Instagram</span>
@@ -355,10 +355,7 @@ function validateForm() {
   const email = document.getElementById('inputEmail').value.trim();
   const emailOk = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
   setErr('email', !emailOk); if (!emailOk) ok = false;
-  const store = document.getElementById('inputStore').value;
-  setErr('store', !store); if (!store) ok = false;
-  const anyMedia = document.querySelectorAll('#mediaGroup input:checked').length > 0;
-  setErr('media', !anyMedia); if (!anyMedia) ok = false;
+  // 店舗・媒体は任意
   return ok;
 }
 function setErr(field, show) {
