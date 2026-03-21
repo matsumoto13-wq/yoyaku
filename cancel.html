@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
 <title>辞退のご連絡 | スタッフ募集</title>
 <link rel="stylesheet" href="style.css">
+<style>* { font-family: 'Zen Kaku Gothic New', sans-serif !important; }</style>
 </head>
 <body>
 <div class="page-wrapper">
@@ -20,30 +21,30 @@
         ご応募いただきありがとうございました。<br>
         よろしければ辞退の理由をお聞かせください。
       </p>
-      <div class="radio-group" id="reasonGroup">
+      <div class="radio-group">
         <label class="radio-item" id="r1">
           <input type="radio" name="reason" value="他の仕事が決まった" onchange="selectRadio(this)">
           <span>他の仕事が決まった</span>
         </label>
         <label class="radio-item" id="r2">
-          <input type="radio" name="reason" value="予定が合わなくなった" onchange="selectRadio(this)">
-          <span>予定が合わなくなった</span>
+          <input type="radio" name="reason" value="体調不良" onchange="selectRadio(this)">
+          <span>体調不良</span>
         </label>
         <label class="radio-item" id="r3">
-          <input type="radio" name="reason" value="気持ちが変わった" onchange="selectRadio(this)">
-          <span>気持ちが変わった</span>
+          <input type="radio" name="reason" value="急用・その他" onchange="selectRadio(this)">
+          <span>急用・その他</span>
         </label>
       </div>
     </div>
 
     <button class="btn-danger" id="cancelBtn" onclick="submitCancel()">辞退を送信する</button>
     <div style="height:10px;"></div>
-    <a href="confirm.html" class="btn-secondary">やっぱり行きます →</a>
+    <a id="changeLink" href="change.html" class="btn-secondary">← 日程を変更する</a>
   </div>
 
   <div id="state-complete" style="display:none;">
     <div class="card" style="text-align:center;padding:40px 24px;">
-      <div class="complete-icon" style="background:rgba(122,184,154,0.1);border-color:rgba(122,184,154,0.3);">✓</div>
+      <div class="complete-icon">✓</div>
       <div class="complete-title">ご連絡ありがとうございました</div>
       <div style="height:16px;"></div>
       <div class="complete-sub">
@@ -51,6 +52,8 @@
         ご縁がありましたらお会いできることを<br>楽しみにしております。
       </div>
     </div>
+    <div style="height:16px;"></div>
+    <a href="index.html" class="btn-secondary">← ホームへ戻る</a>
   </div>
 </div>
 
@@ -58,6 +61,11 @@
 const GAS_URL = 'https://script.google.com/macros/s/AKfycbyp0dxoe4P12l2gg5cH7IYoBSBSPBcgjsJVKjEa6bW5xaoDadD1GRFqeYhavVp5X_Dp/exec';
 const params = new URLSearchParams(location.search);
 const bookingId = params.get('id');
+
+// 日程変更リンクにIDを引き継ぐ
+if (bookingId) {
+  document.getElementById('changeLink').href = `change.html?id=${encodeURIComponent(bookingId)}`;
+}
 
 function selectRadio(radio) {
   document.querySelectorAll('.radio-item').forEach(el => el.classList.remove('selected'));
@@ -67,15 +75,11 @@ function selectRadio(radio) {
 async function submitCancel() {
   const reason = document.querySelector('input[name="reason"]:checked');
   if (!reason) { alert('理由を選択してください'); return; }
-
   const btn = document.getElementById('cancelBtn');
-  btn.disabled = true;
-  btn.textContent = '送信中...';
-
+  btn.disabled = true; btn.textContent = '送信中...';
   try {
     await fetch(`${GAS_URL}?action=cancel&id=${encodeURIComponent(bookingId)}&reason=${encodeURIComponent(reason.value)}`);
-  } catch(e) { /* デモ */ }
-
+  } catch(e) {}
   document.getElementById('state-form').style.display = 'none';
   document.getElementById('state-complete').style.display = 'block';
 }
