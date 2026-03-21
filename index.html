@@ -435,8 +435,13 @@ async function submitBooking() {
 function showComplete() {
   const d = new Date(selectedDate + 'T00:00:00');
   const days = ['日','月','火','水','木','金','土'];
+  const name = document.getElementById('inputName').value.trim();
+  const email = document.getElementById('inputEmail').value.trim();
   document.getElementById('completeMessage').innerHTML =
-    `${d.getFullYear()}年${d.getMonth()+1}月${d.getDate()}日（${days[d.getDay()]}）<br>${selectedSlot} にご予約を承りました。<br><br>確認メールをお送りしましたのでご確認ください。`;
+    `${d.getFullYear()}年${d.getMonth()+1}月${d.getDate()}日（${days[d.getDay()]}）<br>${selectedSlot} にご予約を承りました。<br><br>` +
+    `<div style="font-size:12px;color:var(--text2);margin-top:8px;line-height:2;">` +
+    `お名前：${name}<br>メールアドレス：${email}` +
+    `</div><br>確認メールをお送りしましたのでご確認ください。`;
   showSection('complete'); updateSteps(4);
 }
 
