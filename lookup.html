@@ -5,7 +5,29 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
 <title>予約確認 | スタッフ募集</title>
 <link rel="stylesheet" href="style.css">
-<style>* { font-family: 'Zen Kaku Gothic New', sans-serif !important; }</style>
+<style>
+* { font-family: 'Zen Kaku Gothic New', sans-serif !important; }
+.search-loading {
+  display: none;
+  text-align: center;
+  padding: 32px 0;
+}
+.search-loading.active { display: block; }
+.dot-pulse {
+  display: inline-flex; gap: 6px; align-items: center;
+}
+.dot-pulse span {
+  width: 8px; height: 8px; border-radius: 50%;
+  background: var(--accent); opacity: 0.3;
+  animation: dotpulse 1.2s ease-in-out infinite;
+}
+.dot-pulse span:nth-child(2) { animation-delay: 0.2s; }
+.dot-pulse span:nth-child(3) { animation-delay: 0.4s; }
+@keyframes dotpulse {
+  0%, 100% { opacity: 0.3; transform: scale(0.8); }
+  50% { opacity: 1; transform: scale(1.1); }
+}
+</style>
 </head>
 <body>
 <div class="page-wrapper">
@@ -20,11 +42,21 @@
       <div class="card-title">メールアドレスで検索</div>
       <div class="form-group">
         <label class="form-label">ご登録のメールアドレス</label>
-        <input type="email" class="form-input" id="lookupEmail" placeholder="例：sakura@example.com">
+        <input type="email" class="form-input" id="lookupEmail"
+          placeholder="例：sakura@example.com" maxlength="100">
         <div class="error-msg" id="err-lookup">メールアドレスを正しく入力してください</div>
       </div>
     </div>
-    <button class="btn-primary" onclick="doLookup()">予約を検索する</button>
+    <button class="btn-primary" id="searchBtn" onclick="doLookup()">予約を検索する</button>
+
+    <div class="search-loading" id="searchLoading">
+      <div class="dot-pulse">
+        <span></span><span></span><span></span>
+      </div>
+      <div style="font-size:12px;color:var(--text2);margin-top:12px;letter-spacing:0.05em;">
+        検索中...
+      </div>
+    </div>
   </div>
 
   <div id="state-result" style="display:none;">
@@ -62,12 +94,27 @@
 const GAS_URL = 'https://script.google.com/macros/s/AKfycbyp0dxoe4P12l2gg5cH7IYoBSBSPBcgjsJVKjEa6bW5xaoDadD1GRFqeYhavVp5X_Dp/exec';
 const FRONT_URL = 'https://matsumoto13-wq.github.io/yoyaku';
 
+// URLパラメータにemailがあれば自動検索
+window.addEventListener('DOMContentLoaded', () => {
+  const params = new URLSearchParams(location.search);
+  const email = params.get('email');
+  if (email) {
+    document.getElementById('lookupEmail').value = email;
+    doLookup();
+  }
+});
+
 async function doLookup() {
   const email = document.getElementById('lookupEmail').value.trim();
   const emailOk = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
   document.getElementById('err-lookup').classList.toggle('visible', !emailOk);
   document.getElementById('lookupEmail').classList.toggle('error', !emailOk);
   if (!emailOk) return;
+
+  // ローディング表示
+  const btn = document.getElementById('searchBtn');
+  btn.disabled = true;
+  document.getElementById('searchLoading').classList.add('active');
 
   try {
     const res = await fetch(`${GAS_URL}?action=lookup&email=${encodeURIComponent(email)}`);
@@ -79,24 +126,38 @@ async function doLookup() {
     }
   } catch(e) {
     showNotFound();
+  } finally {
+    btn.disabled = false;
+    document.getElementById('searchLoading').classList.remove('active');
   }
 }
 
 function showResult(b) {
-  const d = new Date(b.date + 'T00:00:00');
+  // 日付パース
+  const dateStr = typeof b.date === 'string' ? b.date : '';
+  const d = dateStr ? new Date(dateStr + 'T00:00:00') : null;
   const days = ['日','月','火','水','木','金','土'];
-  document.getElementById('resultDate').textContent =
-    `${d.getFullYear()}年${d.getMonth()+1}月${d.getDate()}日（${days[d.getDay()]}） ${b.slot}`;
+  const dateLabel = d && !isNaN(d)
+    ? `${d.getFullYear()}年${d.getMonth()+1}月${d.getDate()}日（${days[d.getDay()]}）`
+    : dateStr;
+
+  // スロット型変換
+  let slot = b.slot || '';
+  if (slot.includes('T')) { const m = slot.match(/T(\d{2}:\d{2})/); if (m) slot = m[1]; }
+
+  document.getElementById('resultDate').textContent = `${dateLabel} ${slot}`;
   document.getElementById('resultName').textContent = b.name;
   document.getElementById('resultEmail').textContent = b.email;
-  document.getElementById('resultStore').textContent = b.store;
+  document.getElementById('resultStore').textContent = b.store || '未選択';
+
   const statusEl = document.getElementById('resultStatus');
   statusEl.textContent = b.status || '確定';
   statusEl.style.color = b.status === '辞退' ? 'var(--danger)' : 'var(--success)';
 
-  // 変更・キャンセルリンク
-  document.getElementById('changeLink').href = `${FRONT_URL}/change.html?id=${encodeURIComponent(b.id)}`;
-  document.getElementById('cancelLink').href = `${FRONT_URL}/cancel.html?id=${encodeURIComponent(b.id)}`;
+  if (b.id) {
+    document.getElementById('changeLink').href = `${FRONT_URL}/change.html?id=${encodeURIComponent(b.id)}`;
+    document.getElementById('cancelLink').href = `${FRONT_URL}/cancel.html?id=${encodeURIComponent(b.id)}`;
+  }
 
   document.getElementById('state-form').style.display = 'none';
   document.getElementById('state-result').style.display = 'block';
@@ -106,12 +167,14 @@ function showNotFound() {
   document.getElementById('state-form').style.display = 'none';
   document.getElementById('state-notfound').style.display = 'block';
 }
+
 function reset() {
   document.getElementById('state-form').style.display = 'block';
   document.getElementById('state-result').style.display = 'none';
   document.getElementById('state-notfound').style.display = 'none';
   document.getElementById('lookupEmail').value = '';
 }
+
 document.getElementById('lookupEmail').addEventListener('keydown', e => {
   if (e.key === 'Enter') doLookup();
 });
